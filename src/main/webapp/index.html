@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端基础知识演示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon">
+    <link href="style.css" rel="stylesheet">
+
+    <!-- 内部样式表演示。实际项目更推荐使用上面的外部样式表。 -->
+    <style>
+        .internal-style-note {
+            border-left-color: #2563eb;
+        }
+    </style>
+    <script src="test.js" defer></script>
+</head>
+
+<body>
+<header class="site-header" id="top">
+    <div class="container">
+        <p class="site-label">FRONT-END BASICS</p>
+        <h1>前端基础知识演示</h1>
+        <p class="site-description">从 HTML 页面结构出发，在同一组元素上逐步加入 CSS 样式。</p>
+    </div>
+</header>
+
+<nav class="site-nav" aria-label="页面导航">
+    <div class="container">
+        <a href="#basic">基础结构</a>
+        <a href="#content">常用内容</a>
+        <a href="#selectors">CSS 选择器</a>
+        <a href="#table">表格</a>
+        <a href="#forms">表单</a>
+        <a href="#media">媒体</a>
+        <a href="#box-model">盒模型</a>
+        <a href="#login">登录界面</a>
+        <a href="#javascript">JavaScript</a>
+    </div>
+</nav>
+
+<main class="container">
+    <section id="basic">
+        <div class="section-title">
+            <span>01</span>
+            <div>
+                <h2>页面结构与基础元素</h2>
+                <p>HTML 描述内容，CSS 控制内容如何显示。</p>
+            </div>
+        </div>
+
+        <div class="example">
+            <h3>div、span、p、br 与 hr</h3>
+            <div>
+                <span>这是同一个 div 中的第一个 span。</span>
+                <span>这是第二个 span，它们默认排列在同一行。</span>
+            </div>
+            <div>这是第二个 div，div 默认独占一行。</div>
+            <p>p 标签适合划分文章段落。源代码中的普通换行会被合并为空格，<br>需要明确换行时可以使用 br 标签。</p>
+            <p>
+                转义字符：&lt; 小于号，&gt; 大于号，&amp; 与号，&quot; 双引号，&copy; 版权符号；
+                使用实体可以保留多个空格：左边&nbsp;&nbsp;&nbsp;右边。
+            </p>
+            <hr>
+            <p><strong>标签说明：</strong>img、meta、link、br、hr 和 input 等是单标签；div、span、p、a 和 form 等是双标签。</p>
+        </div>
+
+        <div class="notes-grid">
+            <aside class="note">
+                <h3>外部样式表</h3>
+                <code>&lt;link href="style.css" rel="stylesheet"&gt;</code>
+                <p>本页主要采用这种方式，HTML 与 CSS 分开保存，便于维护。</p>
+            </aside>
+            <aside class="note internal-style-note">
+                <h3>内部样式表</h3>
+                <code>&lt;style&gt; ... &lt;/style&gt;</code>
+                <p>写在 head 中，只对当前页面生效。</p>
+            </aside>
+            <aside class="note" style="border-left-color: #64748b;">
+                <h3>内联样式</h3>
+                <code>style="..."</code>
+                <p>直接写在元素上，优先级较高，但不适合大量使用。</p>
+            </aside>
+        </div>
+    </section>
+
+    <section id="content">
+        <div class="section-title">
+            <span>02</span>
+            <div>
+                <h2>标题、链接与列表</h2>
+                <p>这些 HTML 元素提供语义，CSS 统一它们的字体、颜色与间距。</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="example heading-example">
+                <h3>六级标题</h3>
+                <h1>一级标题 h1</h1>
+                <h2>二级标题 h2</h2>
+                <h3>三级标题 h3</h3>
+                <h4>四级标题 h4</h4>
+                <h5>五级标题 h5</h5>
+                <h6>六级标题 h6</h6>
+                <p>我是标题下的正文内容。</p>
+            </div>
+
+            <div class="example">
+                <h3>超链接与锚点</h3>
+                <p><a href="https://www.bilibili.com/">访问哔哩哔哩</a></p>
+                <p>href 可以指向外部网页，也可以使用“#元素 id”跳转到当前页面的位置。</p>
+                <p><a href="#forms">跳转到表单</a> · <a href="#media">跳转到媒体</a> · <a href="#bottom">跳转到底部</a>
+                </p>
+
+                <div class="list-grid">
+                    <div>
+                        <h4>无序列表 ul</h4>
+                        <ul>
+                            <li>一号选项</li>
+                            <li>二号选项</li>
+                            <li>三号选项</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>有序列表 ol</h4>
+                        <ol>
+                            <li>认识页面结构</li>
+                            <li>学习常用标签</li>
+                            <li>使用 CSS 美化</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="selectors">
+        <div class="section-title">
+            <span>03</span>
+            <div>
+                <h2>在现有元素上使用 CSS 选择器</h2>
+                <p>选择器找到 HTML 元素，声明块为它们设置具体样式。</p>
+            </div>
+        </div>
+
+        <div class="example selector-demo">
+            <div class="selector-row">
+                <div>
+                    <code>input { font: inherit; }</code>
+                    <h3>标签选择器</h3>
+                    <p>页面中的 input 元素共享基础字体设置。</p>
+                </div>
+                <input type="text" placeholder="一个 input 元素">
+            </div>
+
+            <div class="selector-row">
+                <div>
+                    <code>#selector-title { color: ...; }</code>
+                    <h3 id="selector-title">ID 选择器</h3>
+                    <p>id 在页面中应保持唯一，选择时使用 #。</p>
+                </div>
+                <span class="result-label">唯一元素</span>
+            </div>
+
+            <div class="selector-row">
+                <div>
+                    <code>.selector-field { ... }</code>
+                    <h3>类选择器</h3>
+                    <p>同一个类可以用在多个元素上，选择时使用 .。</p>
+                </div>
+                <div>
+                    <span class="selector-field">账号标签</span>
+                    <span class="selector-field">密码标签</span>
+                </div>
+            </div>
+
+            <div class="selector-row">
+                <div>
+                    <code>.selector-demo strong { ... }</code>
+                    <h3>组合与后代选择器</h3>
+                    <p>逗号让多个选择器共用样式，空格选择某个元素内部的后代。</p>
+                </div>
+                <p>这段话中的 <strong>重点内容</strong> 被后代选择器选中。</p>
+            </div>
+        </div>
+
+        <div class="priority-box">
+            <div>
+                <h3>选择器优先级</h3>
+                <p>通配选择器 &lt; 标签选择器 &lt; 类选择器 &lt; ID 选择器 &lt; 内联样式。</p>
+            </div>
+            <div class="priority-text" id="priority-text" style="color: #2563eb;">这段文字最终使用内联样式的蓝色。</div>
+            <p><code>!important</code> 可以提高单条声明的优先级，应谨慎使用。</p>
+        </div>
+    </section>
+
+    <section id="table">
+        <div class="section-title">
+            <span>04</span>
+            <div>
+                <h2>表格结构与表格样式</h2>
+                <p>table、thead、tbody、tr、th 和 td 构成结构，CSS 添加边框和间距。</p>
+            </div>
+        </div>
+
+        <div class="example table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>年级</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>0001</td>
+                    <td>小明</td>
+                    <td>男</td>
+                    <td>2019</td>
+                </tr>
+                <tr>
+                    <td>0002</td>
+                    <td>小红</td>
+                    <td>女</td>
+                    <td>2020</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="forms">
+        <div class="section-title">
+            <span>05</span>
+            <div>
+                <h2>HTML 表单与控件样式</h2>
+                <p>保留所有基础表单控件，并为它们添加统一、克制的样式。</p>
+            </div>
+        </div>
+
+        <div class="forms-grid">
+            <form class="example basic-form" action="#forms" method="get">
+                <h3>基础登录表单</h3>
+                <label for="basic-username">账号</label>
+                <input id="basic-username" type="text" name="username" placeholder="Username...">
+                <label for="basic-password">密码</label>
+                <input id="basic-password" type="password" name="password" placeholder="Password...">
+                <a href="https://www.baidu.com/">忘记密码</a>
+                <div class="button-row">
+                    <button type="button">普通按钮</button>
+                    <input type="button" value="input 按钮">
+                    <input type="submit" value="提交表单">
+                </div>
+            </form>
+
+            <form class="example basic-form" action="#forms" method="get">
+                <h3>更多表单控件</h3>
+                <label for="message">多行文本框</label>
+                <textarea id="message" name="message" placeholder="文本内容..." cols="30" rows="4"></textarea>
+
+                <label class="inline-control">
+                    <input type="checkbox" name="privacy" value="agreed">
+                    我同意本网站的隐私政策
+                </label>
+
+                <fieldset>
+                    <legend>登录身份（相同 name 只能单选）</legend>
+                    <label class="inline-control"><input type="radio" name="role" value="student">学生</label>
+                    <label class="inline-control"><input type="radio" name="role" value="teacher">教师</label>
+                </fieldset>
+
+                <label for="selected-role">下拉选择登录身份</label>
+                <select id="selected-role" name="selected-role">
+                    <option value="student">学生</option>
+                    <option value="teacher" selected>教师（默认选中）</option>
+                </select>
+                <input type="submit" value="提交更多信息">
+            </form>
+        </div>
+    </section>
+
+    <section id="media">
+        <div class="section-title">
+            <span>06</span>
+            <div>
+                <h2>图片与内嵌页面</h2>
+                <p>CSS 让固定尺寸的媒体元素在小屏幕上也不会溢出。</p>
+            </div>
+        </div>
+
+        <div class="media-grid">
+            <div class="example">
+                <h3>img 图片</h3>
+                <p>src 指定图片地址，alt 提供加载失败时的替代文本。</p>
+                <img width="300" src="kaf.jpg" alt="KAF 示例图片">
+            </div>
+            <div class="example">
+                <h3>iframe 内嵌页面</h3>
+                <p>iframe 可以嵌入另一个网页或视频播放器。</p>
+                <iframe
+                        src="https://player.bilibili.com/player.html?isOutside=true&amp;aid=116641463539911&amp;bvid=BV1h2VP6eEXh&amp;cid=38633472106&amp;p=1&amp;autoplay=0"
+                        title="哔哩哔哩视频播放器"
+                        width="800"
+                        height="500"
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <section id="box-model">
+        <div class="section-title">
+            <span>07</span>
+            <div>
+                <h2>边距与盒模型</h2>
+                <p>从内到外依次是 content、padding、border 和 margin。</p>
+            </div>
+        </div>
+
+        <div class="example box-layout">
+            <div class="box-stage">
+                <div id="outer">
+                    <div id="inner">content</div>
+                </div>
+            </div>
+            <div class="box-description">
+                <p><strong>橙色：</strong>内容区域 content</p>
+                <p><strong>浅绿色：</strong>内边距 padding</p>
+                <p><strong>灰色：</strong>边框 border</p>
+                <p><strong>外部留白：</strong>外边距 margin</p>
+                <p>本页设置了 <code>box-sizing: border-box</code>，声明的宽高会包含 padding 和 border。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="login">
+        <div class="section-title">
+            <span>08</span>
+            <div>
+                <h2>综合练习：登录界面</h2>
+                <p>最后把表单、选择器和盒模型组合成一个简洁的登录界面。</p>
+            </div>
+        </div>
+
+        <form class="login-form" action="#login" method="get">
+            <h3>账号登录</h3>
+            <p>请输入账号和密码</p>
+
+            <label for="login-username">账号</label>
+            <input id="login-username" name="login-username" type="text" placeholder="请输入账号"
+                   autocomplete="username">
+
+            <div class="password-label">
+                <label for="login-password">密码</label>
+                <a href="#login">忘记密码？</a>
+            </div>
+            <input id="login-password" name="login-password" type="password" placeholder="请输入密码"
+                   autocomplete="current-password">
+
+            <label class="inline-control remember-me">
+                <input type="checkbox" name="remember">
+                记住我的登录状态
+            </label>
+
+            <button type="submit">登录</button>
+            <p class="register-tip">还没有账号？<a href="#login">立即注册</a></p>
+        </form>
+    </section>
+
+    <section id="javascript">
+        <div class="section-title">
+            <span>09</span>
+            <div>
+                <h2>JavaScript 语言</h2>
+                <p>JavaScript 为现有 HTML 元素添加逻辑、交互和与服务器通信的能力。</p>
+            </div>
+        </div>
+
+        <div class="js-intro">
+            <p>本页通过 <code>&lt;script src="test.js" defer&gt;&lt;/script&gt;</code> 引入脚本。<code>defer</code>
+                会让脚本等待 HTML 解析完成后再执行。</p>
+            <p>下面的演示都来自笔记中的知识点；点击按钮后，运行结果会显示在代码旁边，同时也会写入浏览器控制台。</p>
+        </div>
+
+        <article class="js-topic" id="js-syntax">
+            <div class="js-topic-title">
+                <span>9.1</span>
+                <div>
+                    <h3>基本语法、数据类型与冒泡排序</h3>
+                    <p><code>let</code> 声明的变量可以重新赋值，<code>const</code> 用于不再重新赋值的变量；使用 <code>typeof</code>
+                        查看值的类型。</p>
+                </div>
+            </div>
+
+            <div class="js-demo-grid">
+                    <pre><code>let value = 10
+value++
+value = "Hello World"
+
+typeof value
+
+const arr = [0, 2, 1, 5, 9, 3, 4, 6, 7, 8]
+// 使用两层 for 循环完成冒泡排序</code></pre>
+                <div class="js-panel">
+                    <p><strong>特殊值：</strong><code>undefined</code>、<code>null</code> 和 <code>NaN</code></p>
+                    <div class="button-row">
+                        <button type="button" id="run-types">查看类型</button>
+                        <button type="button" id="run-sort">运行冒泡排序</button>
+                    </div>
+                    <output class="js-output" id="syntax-output" aria-live="polite">点击按钮查看运行结果</output>
+                </div>
+            </div>
+        </article>
+
+        <article class="js-topic" id="js-control">
+            <div class="js-topic-title">
+                <span>9.2</span>
+                <div>
+                    <h3>逻辑运算与流程控制</h3>
+                    <p>演示 <code>==</code> 与 <code>===</code>、真假值、三元运算符，以及 if、switch、while 和 for。</p>
+                </div>
+            </div>
+
+            <div class="js-demo-grid">
+                    <pre><code>'10' == 10    // true
+'10' === 10   // false
+!0            // true
+!""           // true
+
+const result = score &gt;= 60 ? "及格" : "不及格"
+
+if (...) { ... }
+switch (...) { ... }
+while (...) { ... }
+for (...) { ... }</code></pre>
+                <div class="js-panel">
+                    <label for="score-input">输入 0～100 的分数</label>
+                    <div class="inline-input">
+                        <input id="score-input" type="number" min="0" max="100" value="75">
+                        <button type="button" id="run-control">运行判断</button>
+                    </div>
+                    <output class="js-output" id="control-output" aria-live="polite">等待运行</output>
+                </div>
+            </div>
+        </article>
+
+        <article class="js-topic" id="js-functions">
+            <div class="js-topic-title">
+                <span>9.3</span>
+                <div>
+                    <h3>函数、默认参数与回调</h3>
+                    <p>函数无需声明参数和返回值类型，也可以作为变量或参数传递；匿名函数还可以写成箭头函数。</p>
+                </div>
+            </div>
+
+            <div class="js-demo-grid">
+                    <pre><code>function greet(name = "同学") {
+    return "你好，" + name
+}
+
+function runCallback(callback) {
+    callback("这个是回调参数")
+}
+
+runCallback(param =&gt; {
+    console.info(param)
+})</code></pre>
+                <div class="js-panel">
+                    <label for="function-name">称呼（留空会使用默认参数）</label>
+                    <input id="function-name" type="text" placeholder="例如：小明">
+                    <div class="button-row">
+                        <button type="button" id="run-function">调用函数</button>
+                        <button type="button" id="run-callback">运行回调</button>
+                    </div>
+                    <output class="js-output" id="function-output" aria-live="polite">等待运行</output>
+                </div>
+            </div>
+        </article>
+
+        <article class="js-topic" id="js-data">
+            <div class="js-topic-title">
+                <span>9.4</span>
+                <div>
+                    <h3>数组与对象</h3>
+                    <p>数组可以保存不同类型的值并动态扩容；对象可以动态添加属性和函数，并通过 <code>this</code> 访问自身成员。
+                    </p>
+                </div>
+            </div>
+
+            <div class="js-demo-grid">
+                    <pre><code>const stack = [1, "文本", false]
+stack.push("新元素")
+stack.pop()
+stack.map(item =&gt; "值：" + item)
+
+const student = {
+    name: "小明",
+    introduce() {
+        return "我是" + this.name
+    }
+}</code></pre>
+                <div class="js-panel">
+                    <label for="array-value">向数组加入一个值</label>
+                    <input id="array-value" type="text" placeholder="输入新元素">
+                    <div class="button-row">
+                        <button type="button" id="array-push">push</button>
+                        <button type="button" id="array-pop">pop</button>
+                        <button type="button" id="run-object">调用对象函数</button>
+                    </div>
+                    <output class="js-output" id="data-output" aria-live="polite">当前数组：[1, "文本", false]</output>
+                </div>
+            </div>
+        </article>
+
+        <article class="js-topic" id="js-events">
+            <div class="js-topic-title">
+                <span>9.5</span>
+                <div>
+                    <h3>事件与 Document 对象</h3>
+                    <p>DOM 将 HTML 元素映射为 JavaScript 对象。这里演示 <code>onclick</code>、<code>oninput</code> 和
+                        <code>onsubmit</code>。</p>
+                </div>
+            </div>
+
+            <div class="js-demo-grid">
+                    <pre><code>function checkIllegal(element) {
+    if (element.value.length &lt; 6) {
+        element.classList.add("illegal-pwd")
+    } else {
+        element.classList.remove("illegal-pwd")
+    }
+}
+
+document.getElementById("event-button").onclick = ...</code></pre>
+                <form class="js-panel event-form" id="event-form">
+                    <label for="event-password">输入至少 6 位密码</label>
+                    <input id="event-password" type="password" oninput="checkIllegal(this)"
+                           placeholder="输入时自动校验">
+                    <small id="password-hint">尚未输入密码</small>
+                    <div class="button-row">
+                        <button type="button" id="event-button">onclick 点击事件</button>
+                        <button type="submit">onsubmit 提交事件</button>
+                    </div>
+                    <output class="js-output" id="event-output" aria-live="polite">等待事件发生</output>
+                </form>
+            </div>
+        </article>
+
+        <article class="js-topic" id="js-xhr">
+            <div class="js-topic-title">
+                <span>9.6</span>
+                <div>
+                    <h3>发送 XMLHttpRequest 请求</h3>
+                    <p>点击按钮后向项目内的 <code>README.md</code> 发送 GET 请求，并读取响应状态和部分文本。</p>
+                </div>
+            </div>
+
+            <div class="js-demo-grid">
+                    <pre><code>const xhr = new XMLHttpRequest()
+xhr.open("GET", "README.md")
+xhr.onload = () =&gt; {
+    console.info(xhr.status, xhr.responseText)
+}
+xhr.send()</code></pre>
+                <div class="js-panel">
+                    <button type="button" id="send-xhr">发送 GET 请求</button>
+                    <output class="js-output" id="xhr-output" aria-live="polite">尚未发送请求</output>
+                    <p class="js-tip">XHR 需要通过 HTTP 访问页面。直接双击打开 HTML 时，浏览器可能会拦截本地文件请求。</p>
+                </div>
+            </div>
+        </article>
+    </section>
+</main>
+
+<footer id="bottom">
+    <div class="container">前端基础演示 · <a href="#top">返回顶部</a></div>
+</footer>
+</body>
+
+</html>
