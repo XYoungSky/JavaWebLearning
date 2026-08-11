@@ -3,4 +3,33 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
+    <display-name>JavaWeb 图书管理系统</display-name>
+
+    <context-param>
+        <param-name>applicationName</param-name>
+        <param-value>JavaWeb 图书管理系统</param-value>
+    </context-param>
+    <context-param>
+        <param-name>uploadDirectory</param-name>
+        <param-value>javaweb-library-uploads</param-value>
+    </context-param>
+
+    <session-config>
+        <session-timeout>30</session-timeout>
+        <cookie-config>
+            <http-only>true</http-only>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
+
+    <!-- XML 注册演示，同时保证编码/日志过滤器位于注解注册的认证过滤器之前。 -->
+    <filter>
+        <filter-name>EncodingLoggingFilter</filter-name>
+        <filter-class>com.example.demo.filter.EncodingLoggingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>EncodingLoggingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 </web-app>

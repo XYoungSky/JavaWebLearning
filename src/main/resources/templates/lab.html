@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>开发者实验室</title><link rel="stylesheet" th:href="${contextPath} + '/assets/app.css'">
+    <script defer th:src="${contextPath} + '/assets/app.js'"></script></head>
+<body>
+<div th:replace="~{fragments :: header('开发者实验室', ${activePage})}"></div>
+<main class="page-container">
+    <div th:replace="~{fragments :: pageTitle('DEVELOPER LAB', 'Servlet 开发者实验室', '直接观察请求、响应、会话、过滤链、监听器和容器行为。')}"></div>
+    <div th:replace="~{fragments :: flash}"></div>
+    <section class="lab-grid">
+        <article class="panel lab-card span-2"><div class="card-title"><span>01</span><div><h2>HTTP 请求检查器</h2><p>HttpServletRequest 将请求报文封装为可读取的对象。</p></div></div>
+            <dl class="detail-list"><dt>Method</dt><dd th:text="${method}">GET</dd><dt>Protocol</dt><dd th:text="${protocol}">HTTP</dd><dt>URL</dt><dd class="mono" th:text="${requestUrl}">URL</dd><dt>Remote address</dt><dd th:text="${remoteAddress}">IP</dd></dl>
+            <details><summary>请求头</summary><dl class="detail-list compact-list"><th:block th:each="entry : ${headers}"><dt th:text="${entry.key}">key</dt><dd class="mono" th:text="${entry.value}">value</dd></th:block></dl></details>
+            <form class="query-form" th:action="${contextPath} + '/lab'" method="get"><input name="keyword" placeholder="发送一个 GET 参数"><button class="button secondary" type="submit">重新请求</button></form>
+        </article>
+        <article class="panel lab-card"><div class="card-title"><span>02</span><div><h2>Servlet 生命周期</h2><p>构造和 init 只执行一次，service 每次请求执行。</p></div></div>
+            <dl class="metric-list"><div><dt>service 调用</dt><dd th:text="${serviceCalls}">0</dd></div><div><dt>全局请求</dt><dd th:text="${requestCount}">0</dd></div></dl>
+            <p class="small mono" th:text="${initializedAt}">初始化时间</p><p>ServletConfig：<b th:text="${servletInitParam}">参数</b></p><p>ServletContext：<b th:text="${contextInitParam}">参数</b></p>
+        </article>
+        <article class="panel lab-card"><div class="card-title"><span>03</span><div><h2>XHR 局部更新</h2><p>页面无需刷新即可获取服务器时间。</p></div></div>
+            <output id="server-time" class="time-output">尚未请求</output><button id="refresh-time" class="button primary" th:attr="data-url=${contextPath} + '/api/time'">获取服务器时间</button>
+        </article>
+        <article class="panel lab-card"><div class="card-title"><span>04</span><div><h2>转发与重定向</h2><p>比较一次内部转发和两次浏览器请求。</p></div></div>
+            <div class="flash success" th:if="${forwardedMessage != null}" th:text="${forwardedMessage}">转发数据</div><div class="flash success" th:if="${redirectArrived}">重定向已完成；地址栏改变，原 request attribute 不存在。</div>
+            <div class="button-row"><a class="button secondary" th:href="${contextPath} + '/lab/navigation?mode=forward'">请求转发</a><a class="button secondary" th:href="${contextPath} + '/lab/navigation?mode=redirect'">重定向</a></div>
+        </article>
+        <article class="panel lab-card"><div class="card-title"><span>05</span><div><h2>Cookie 与 Session</h2><p>Session 通过 JSESSIONID Cookie 识别浏览器会话。</p></div></div>
+            <dl class="detail-list"><dt>Session ID</dt><dd class="mono" th:text="${session.id}">ID</dd><dt>是否新建</dt><dd th:text="${session.new}">true</dd><dt>当前会话数</dt><dd th:text="${activeSessions}">0</dd></dl>
+            <p>请求携带 Cookie：<span th:if="${cookies.isEmpty()}">无</span><code th:each="cookie : ${cookies}" th:text="${cookie.name} + '=' + ${cookie.value}">cookie</code></p>
+            <div class="button-row"><form th:action="${contextPath} + '/lab/cookie'" method="post"><input type="hidden" name="action" value="create"><button class="button secondary">创建 60 秒 Cookie</button></form><form th:action="${contextPath} + '/lab/cookie'" method="post"><input type="hidden" name="action" value="delete"><button class="button ghost">删除 Cookie</button></form><form th:action="${contextPath} + '/lab/session/invalidate'" method="post"><button class="button ghost">使 Session 失效</button></form></div>
+        </article>
+        <article class="panel lab-card"><div class="card-title"><span>06</span><div><h2>上传与下载</h2><p>MultipartConfig、Part 和二进制响应流。</p></div></div>
+            <form class="stack-form" th:action="${contextPath} + '/lab/files/upload'" method="post" enctype="multipart/form-data"><label>选择文件（最大 5 MB）<input type="file" name="demoFile" accept=".png,.jpg,.jpeg,.txt,.pdf" required></label><button class="button primary" type="submit">安全上传</button></form>
+            <a class="text-link" th:href="${contextPath} + '/lab/files/download'" download>下载示例图片 →</a>
+        </article>
+        <article class="panel lab-card"><div class="card-title"><span>07</span><div><h2>JSP 与类加载器</h2><p>隔离展示旧式视图和 Tomcat WebappClassLoader。</p></div></div>
+            <ol class="loader-list"><li th:each="loader, stat : ${classLoaders}"><span th:text="${stat.count}">1</span><code th:text="${loader}">loader</code></li></ol><a class="button secondary" th:href="${contextPath} + '/lab/jsp'">打开 JSP 演示</a>
+        </article>
+    </section>
+</main>
+</body></html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="topbar" th:fragment="header(title, activePage)">
+    <div class="topbar-inner">
+        <a class="brand" th:href="${contextPath} + '/'">
+            <span class="brand-mark">JW</span>
+            <span><strong th:text="${applicationName}">图书管理系统</strong><small>Servlet · MyBatis · Thymeleaf</small></span>
+        </a>
+        <nav class="main-nav" aria-label="主导航">
+            <a th:href="${contextPath} + '/books'" th:classappend="${activePage == 'books'} ? ' active'">图书</a>
+            <a th:href="${contextPath} + '/students'" th:classappend="${activePage == 'students'} ? ' active'">学生</a>
+            <a th:href="${contextPath} + '/loans'" th:classappend="${activePage == 'loans'} ? ' active'">借阅</a>
+            <a th:href="${contextPath} + '/lab'" th:classappend="${activePage == 'lab'} ? ' active'">开发者实验室</a>
+        </nav>
+        <div class="account" th:if="${currentUser != null}">
+            <span th:text="${currentUser.displayName}">管理员</span>
+            <form th:action="${contextPath} + '/logout'" method="post"><button class="link-button">退出</button></form>
+        </div>
+        <a class="button compact secondary" th:unless="${currentUser != null}" th:href="${contextPath} + '/login'">管理员登录</a>
+    </div>
+</header>
+
+<section th:fragment="pageTitle(kicker, title, description)" class="page-heading">
+    <p class="eyebrow" th:text="${kicker}">SECTION</p>
+    <h1 th:text="${title}">标题</h1>
+    <p th:text="${description}">说明</p>
+</section>
+
+<div th:fragment="flash" th:if="${flashMessage != null}" class="flash"
+     th:classappend="${flashType == 'error'} ? ' error' : ' success'" role="status">
+    <span th:text="${flashMessage}">操作结果</span>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>学生名录</title><link rel="stylesheet" th:href="${contextPath} + '/assets/app.css'"></head>
+<body>
+<div th:replace="~{fragments :: header('学生名录', ${activePage})}"></div>
+<main class="page-container">
+    <div th:replace="~{fragments :: pageTitle('STUDENT DIRECTORY', '学生名录', '浏览已导入的学生信息；学生数据由初始化脚本统一维护。')}"></div>
+    <section class="stat-grid">
+        <article class="stat-card"><span>学生总数</span><strong th:text="${students.size()}">0</strong><small>位登记学生</small></article>
+        <article class="stat-card accent"><span>数据来源</span><strong>MyBatis</strong><small>注解 SQL 查询示例</small></article>
+    </section>
+    <section class="panel table-panel">
+        <div class="empty-state" th:if="${students.isEmpty()}">暂无学生数据，请执行数据库初始化脚本。</div>
+        <div class="table-scroll" th:unless="${students.isEmpty()}"><table>
+            <thead><tr><th>#</th><th>学号</th><th>姓名</th><th>班级</th><th>序列状态</th></tr></thead>
+            <tbody><tr th:each="student, stat : ${students}" th:classappend="${stat.even} ? 'even-row'">
+                <td th:text="${stat.count}">1</td><td class="mono" th:text="${student.studentNo}">编号</td>
+                <td><strong th:text="${student.name}">姓名</strong></td><td th:text="${student.className}">班级</td>
+                <td class="muted" th:text="${stat.first ? '第一条' : (stat.last ? '最后一条' : '第 ' + stat.count + ' 条')}">状态</td>
+            </tr></tbody>
+        </table></div>
+    </section>
+</main>
+</body></html>

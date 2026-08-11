@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.LoanMapper">
+    <resultMap id="loanView" type="Loan">
+        <id property="id" column="id"/>
+        <result property="bookId" column="book_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="bookTitle" column="book_title"/>
+        <result property="isbn" column="isbn"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentNo" column="student_no"/>
+        <result property="borrowedAt" column="borrowed_at"/>
+        <result property="returnedAt" column="returned_at"/>
+    </resultMap>
+    <select id="findAll" resultMap="loanView">
+        SELECT l.id, l.book_id, l.student_id, b.title AS book_title, b.isbn,
+               s.name AS student_name, s.student_no, l.borrowed_at, l.returned_at
+        FROM loans l
+        JOIN books b ON b.id = l.book_id
+        JOIN students s ON s.id = l.student_id
+        ORDER BY l.borrowed_at DESC
+    </select>
+    <select id="findActiveByBookId" resultType="Loan">
+        SELECT id, book_id, student_id, borrowed_at, returned_at
+        FROM loans WHERE book_id = #{bookId} AND returned_at IS NULL LIMIT 1
+    </select>
+    <select id="findActiveByIdForUpdate" resultType="Loan">
+        SELECT id, book_id, student_id, borrowed_at, returned_at
+        FROM loans WHERE id = #{id} AND returned_at IS NULL FOR UPDATE
+    </select>
+    <select id="countActiveByBookId" resultType="int">
+        SELECT COUNT(*) FROM loans WHERE book_id = #{bookId} AND returned_at IS NULL
+    </select>
+    <select id="countActiveByStudentId" resultType="int">
+        SELECT COUNT(*) FROM loans WHERE student_id = #{studentId} AND returned_at IS NULL
+    </select>
+    <insert id="insert">
+        INSERT INTO loans(book_id, student_id, borrowed_at) VALUES(#{bookId}, #{studentId}, NOW())
+    </insert>
+    <update id="markReturned">
+        UPDATE loans SET returned_at = NOW() WHERE id = #{id} AND returned_at IS NULL
+    </update>
+</mapper>

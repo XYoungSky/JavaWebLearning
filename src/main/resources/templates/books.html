@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>图书管理</title><link rel="stylesheet" th:href="${contextPath} + '/assets/app.css'">
+</head>
+<body>
+<div th:replace="~{fragments :: header('图书管理', ${activePage})}"></div>
+<main class="page-container">
+    <div th:replace="~{fragments :: pageTitle('BOOK CATALOG', '图书管理', '维护馆藏信息，并实时查看每本书的借阅状态。')}"></div>
+    <div th:replace="~{fragments :: flash}"></div>
+    <section class="panel form-panel">
+        <div><h2>添加图书</h2><p>ISBN 在系统中必须唯一。</p></div>
+        <form class="inline-form" th:action="${contextPath} + '/books/create'" method="post">
+            <label>ISBN<input name="isbn" required maxlength="32" placeholder="978-7-..." autocomplete="off"></label>
+            <label>书名<input name="title" required maxlength="120" placeholder="书名"></label>
+            <label>作者<input name="author" required maxlength="80" placeholder="作者"></label>
+            <button class="button primary" type="submit">添加图书</button>
+        </form>
+    </section>
+    <section class="panel table-panel">
+        <div class="panel-heading"><h2>全部馆藏</h2><span class="count"><b th:text="${books.size()}">0</b> 本</span></div>
+        <div class="empty-state" th:if="${books.isEmpty()}">暂无图书，请先添加第一本馆藏。</div>
+        <div class="table-scroll" th:unless="${books.isEmpty()}">
+            <table><thead><tr><th>#</th><th>ISBN</th><th>书名</th><th>作者</th><th>状态</th><th></th></tr></thead>
+            <tbody><tr th:each="book, stat : ${books}">
+                <td th:text="${stat.count}">1</td><td class="mono" th:text="${book.isbn}">ISBN</td>
+                <td><strong th:text="${book.title}">书名</strong><small th:if="${stat.first}">最新录入</small></td>
+                <td th:text="${book.author}">作者</td>
+                <td th:switch="${book.available}"><span th:case="true" class="badge available">可借</span><span th:case="*" class="badge borrowed">借出</span></td>
+                <td class="actions"><form th:action="${contextPath} + '/books/delete'" method="post" onsubmit="return confirm('确定删除这本图书吗？')">
+                    <input type="hidden" name="id" th:value="${book.id}"><button class="link-button danger" type="submit">删除</button>
+                </form></td>
+            </tr></tbody></table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
