@@ -6,6 +6,7 @@ import com.example.demo.service.LoanService;
 import com.example.demo.service.StudentService;
 import com.example.demo.util.Flash;
 import com.example.demo.util.Validation;
+import com.example.demo.util.Search;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,8 +30,22 @@ public class LoanServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (!"/loans".equals(request.getServletPath())) {
+            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+            return;
+        }
+        renderPage(request, response, null);
+    }
+
+    private void renderPage(HttpServletRequest request, HttpServletResponse response, BusinessException error) throws IOException {
+        String status = Search.status(request.getParameter("status"), "active", "returned");
         Map<String, Object> model = new HashMap<>();
-        model.put("loans", loanService.findAll());
+        model.put("status", status);
+        model.put("selectedBook", error == null ? "" : java.util.Objects.toString(request.getParameter("bookId"), ""));
+        model.put("selectedStudent", error == null ? "" : java.util.Objects.toString(request.getParameter("studentId"), ""));
+        model.put("error", error == null ? null : error.getMessage());
+        model.put("errorField", error == null ? null : error.getField());
+        model.put("loans", loanService.search(status));
         model.put("availableBooks", bookService.findAvailable());
         model.put("students", studentService.findAll());
         model.put("activePage", "loans");
@@ -41,8 +56,8 @@ public class LoanServlet extends BaseServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             if ("/loans/create".equals(request.getServletPath())) {
-                Long bookId = Validation.positiveId(request.getParameter("bookId"), "图书编号");
-                Long studentId = Validation.positiveId(request.getParameter("studentId"), "学生编号");
+                Long bookId = Validation.positiveId(request.getParameter("bookId"), "图书编号", "bookId");
+                Long studentId = Validation.positiveId(request.getParameter("studentId"), "学生编号", "studentId");
                 loanService.borrow(bookId, studentId);
                 Flash.success(request, "借阅登记成功");
             } else if ("/loans/return".equals(request.getServletPath())) {
@@ -53,8 +68,13 @@ public class LoanServlet extends BaseServlet {
                 return;
             }
         } catch (BusinessException ex) {
+            if ("/loans/create".equals(request.getServletPath())) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                renderPage(request, response, ex);
+                return;
+            }
             Flash.error(request, ex.getMessage());
         }
-        redirect(request, response, "/loans");
+        redirect(request, response, "/loans?status=" + Search.status(request.getParameter("status"), "active", "returned"));
     }
 }

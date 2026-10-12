@@ -5,12 +5,13 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.apache.ibatis.io.Resources;
+import com.example.demo.config.DatabaseConfig;
+import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
 
 import java.io.IOException;
-import java.io.Reader;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,8 +25,8 @@ public class ApplicationLifecycleListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
-        try (Reader reader = Resources.getResourceAsReader("mybatis-config.xml")) {
-            SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader);
+        try {
+            SqlSessionFactory factory = DatabaseConfig.createFactory(DatabaseConfig.load());
             context.setAttribute(AppKeys.SQL_SESSION_FACTORY, factory);
             context.setAttribute(AppKeys.ACTIVE_SESSIONS, new AtomicInteger());
             context.setAttribute(AppKeys.REQUEST_COUNT, new AtomicLong());
@@ -42,6 +43,11 @@ public class ApplicationLifecycleListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
-        LOG.info("应用即将停止，Servlet destroy 方法随后完成资源回收");
+        Object factory = event.getServletContext().getAttribute(AppKeys.SQL_SESSION_FACTORY);
+        if (factory instanceof SqlSessionFactory sessions
+                && sessions.getConfiguration().getEnvironment().getDataSource() instanceof PooledDataSource pool) {
+            pool.forceCloseAll();
+        }
+        LOG.info("应用停止，数据库连接池已关闭");
     }
 }

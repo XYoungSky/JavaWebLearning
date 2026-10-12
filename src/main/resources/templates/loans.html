@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>借阅管理</title><link rel="stylesheet" th:href="${contextPath} + '/assets/app.css'"></head>
+    <title>借阅管理</title><link rel="stylesheet" th:href="${contextPath} + '/assets/app.css'"><script defer th:src="${contextPath} + '/assets/app.js'"></script></head>
 <body>
 <div th:replace="~{fragments :: header('借阅管理', ${activePage})}"></div>
 <main class="page-container">
-    <div th:replace="~{fragments :: pageTitle('CIRCULATION', '借阅管理', '登记借阅、查看历史，并完成归还。事务保证图书状态与借阅记录一致。')}"></div>
+    <div th:replace="~{fragments :: pageTitle('CIRCULATION', '借阅管理', '登记借阅、查看历史，并完成归还。')}"></div>
     <div th:replace="~{fragments :: flash}"></div>
     <section class="panel form-panel">
-        <div><h2>新增借阅</h2><p th:if="${availableBooks.isEmpty()}">当前没有可借图书。</p><p th:unless="${availableBooks.isEmpty()}">选择一本可借图书和一位学生。</p></div>
-        <form class="inline-form loan-form" th:action="${contextPath} + '/loans/create'" method="post">
-            <label>图书<select name="bookId" required><option value="">请选择图书</option><option th:each="book : ${availableBooks}" th:value="${book.id}" th:text="${book.title} + ' · ' + ${book.isbn}">图书</option></select></label>
-            <label>学生<select name="studentId" required><option value="">请选择学生</option><option th:each="student : ${students}" th:value="${student.id}" th:text="${student.name} + ' · ' + ${student.studentNo}">学生</option></select></label>
+        <div><h2>新增借阅</h2><p th:if="${availableBooks.isEmpty()}">当前没有可借图书。</p><p th:if="${students.isEmpty()}">暂无学生，请先导入学生名录。</p><p th:unless="${availableBooks.isEmpty()}">选择一本可借图书和一位学生。</p></div>
+        <form class="inline-form loan-form" th:action="${contextPath} + '/loans/create'" method="post" data-submit-once>
+            <input type="hidden" name="status" th:value="${status}">
+            <div th:if="${error != null}" class="flash error form-error" role="alert" tabindex="-1" data-error-summary>
+                <strong>借阅未登记</strong>：<span th:text="${error}"></span>
+                <a th:if="${errorField != null}" th:href="${'#loan-' + errorField}">检查对应字段</a>
+            </div>
+            <label>图书<select id="loan-bookId" name="bookId" required th:attr="aria-invalid=${errorField == 'bookId'},aria-describedby=${errorField == 'bookId' ? 'error-bookId' : null}"><option value="">请选择图书</option><option th:each="book : ${availableBooks}" th:value="${book.id}" th:selected="${selectedBook == #strings.toString(book.id)}" th:text="${book.title} + ' · ' + ${book.isbn}">图书</option></select><small class="field-error" id="error-bookId" th:if="${errorField == 'bookId'}" th:text="${error}"></small></label>
+            <label>学生<select id="loan-studentId" name="studentId" required th:attr="aria-invalid=${errorField == 'studentId'},aria-describedby=${errorField == 'studentId' ? 'error-studentId' : null}"><option value="">请选择学生</option><option th:each="student : ${students}" th:value="${student.id}" th:selected="${selectedStudent == #strings.toString(student.id)}" th:text="${student.name} + ' · ' + ${student.studentNo}">学生</option></select><small class="field-error" id="error-studentId" th:if="${errorField == 'studentId'}" th:text="${error}"></small></label>
             <button class="button primary" type="submit" th:disabled="${availableBooks.isEmpty() or students.isEmpty()}">登记借阅</button>
         </form>
     </section>
     <section class="panel table-panel">
+        <form class="filter-form" th:action="${contextPath} + '/loans'" method="get">
+            <label>记录状态<select name="status"><option value="">全部记录</option><option value="active" th:selected="${status == 'active'}">借阅中</option><option value="returned" th:selected="${status == 'returned'}">已归还</option></select></label>
+            <button class="button primary">筛选</button><a class="button ghost" th:href="${contextPath} + '/loans'">清空筛选</a>
+        </form>
         <div class="panel-heading"><h2>借阅记录</h2><span class="count"><b th:text="${loans.size()}">0</b> 条</span></div>
-        <div class="empty-state" th:if="${loans.isEmpty()}">暂无借阅记录。</div>
-        <div class="table-scroll" th:unless="${loans.isEmpty()}"><table>
-            <thead><tr><th>图书</th><th>学生</th><th>借出时间</th><th>归还时间</th><th>状态</th><th></th></tr></thead>
+        <div class="empty-state" th:if="${loans.isEmpty()}"><span th:text="${status != null and status != '' ? '没有符合该状态的借阅记录。' : '暂无借阅记录。'}"></span></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="借阅列表，窄屏可横向滚动" th:unless="${loans.isEmpty()}"><table>
+            <thead><tr><th>图书</th><th>学生</th><th>借出时间</th><th>归还时间</th><th>状态</th><th>操作</th></tr></thead>
             <tbody><tr th:each="loan : ${loans}">
                 <td><strong th:text="${loan.bookTitle}">书名</strong><small class="mono" th:text="${loan.isbn}">ISBN</small></td>
                 <td><strong th:text="${loan.studentName}">姓名</strong><small th:text="${loan.studentNo}">学号</small></td>
-                <td class="mono small" th:text="${loan.borrowedAt}">时间</td><td class="mono small" th:text="${loan.returnedAt != null ? loan.returnedAt : '—'}">时间</td>
+                <td class="mono small" th:text="${loan.borrowedAt == null ? '—' : #temporals.format(loan.borrowedAt, 'yyyy-MM-dd HH:mm')}">时间</td><td class="mono small" th:text="${loan.returnedAt == null ? '—' : #temporals.format(loan.returnedAt, 'yyyy-MM-dd HH:mm')}">时间</td>
                 <td><span class="badge" th:classappend="${loan.active} ? ' borrowed' : ' available'" th:text="${loan.active ? '借阅中' : '已归还'}">状态</span></td>
-                <td class="actions"><form th:if="${loan.active}" th:action="${contextPath} + '/loans/return'" method="post"><input type="hidden" name="id" th:value="${loan.id}"><button class="link-button" type="submit">归还</button></form></td>
+                <td class="actions"><form th:if="${loan.active}" th:action="${contextPath} + '/loans/return'" method="post" data-submit-once><input type="hidden" name="status" th:value="${status}"><input type="hidden" name="id" th:value="${loan.id}"><button class="link-button" type="submit">归还</button></form></td>
             </tr></tbody>
         </table></div>
     </section>

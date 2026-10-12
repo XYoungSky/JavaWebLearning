@@ -21,18 +21,24 @@ public class LoanService {
         }
     }
 
+    public List<Loan> search(String status) {
+        try (SqlSession session = factory.openSession()) {
+            return session.getMapper(LoanMapper.class).search(status);
+        }
+    }
+
     public void borrow(Long bookId, Long studentId) {
         try (SqlSession session = factory.openSession(false)) {
             try {
                 BookMapper books = session.getMapper(BookMapper.class);
                 LoanMapper loans = session.getMapper(LoanMapper.class);
                 Book book = books.findByIdForUpdate(bookId);
-                if (book == null) throw new BusinessException("图书不存在");
+                if (book == null) throw new BusinessException("bookId", "图书不存在");
                 if (session.getMapper(StudentMapper.class).findById(studentId) == null) {
-                    throw new BusinessException("学生不存在");
+                    throw new BusinessException("studentId", "学生不存在");
                 }
                 if (!book.isAvailable() || loans.findActiveByBookId(bookId) != null) {
-                    throw new BusinessException("该图书当前不可借阅");
+                    throw new BusinessException("bookId", "该图书当前不可借阅，请重新选择");
                 }
                 loans.insert(bookId, studentId);
                 books.updateAvailability(bookId, false);

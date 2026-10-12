@@ -28,7 +28,7 @@
 </section>
 
 <div th:fragment="flash" th:if="${flashMessage != null}" class="flash"
-     th:classappend="${flashType == 'error'} ? ' error' : ' success'" role="status">
+     th:classappend="${flashType == 'error'} ? ' error' : ' success'" th:attr="role=${flashType == 'error' ? 'alert' : 'status'}">
     <span th:text="${flashMessage}">操作结果</span>
 </div>
 </body>

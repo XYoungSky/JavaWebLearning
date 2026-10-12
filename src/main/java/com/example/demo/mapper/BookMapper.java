@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface BookMapper {
     List<Book> findAll();
+    List<Book> search(@Param("pattern") String pattern, @Param("available") Boolean available);
     List<Book> findAvailable();
     Book findById(Long id);
     Book findByIdForUpdate(Long id);

@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface LoanMapper {
     List<Loan> findAll();
+    List<Loan> search(@Param("status") String status);
+    int countByBookId(Long bookId);
     Loan findActiveByBookId(Long bookId);
     Loan findActiveByIdForUpdate(Long id);
     int countActiveByBookId(Long bookId);

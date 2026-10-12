@@ -5,6 +5,15 @@
         SELECT id, isbn, title, author, available, created_at
         FROM books ORDER BY id DESC
     </select>
+    <select id="search" resultType="Book">
+        SELECT b.id, b.isbn, b.title, b.author, b.available, b.created_at,
+               EXISTS(SELECT 1 FROM loans l WHERE l.book_id = b.id) AS loan_history
+        FROM books b
+        WHERE (b.title LIKE #{pattern} ESCAPE '!' OR b.author LIKE #{pattern} ESCAPE '!'
+               OR b.isbn LIKE #{pattern} ESCAPE '!')
+        <if test="available != null">AND b.available = #{available}</if>
+        ORDER BY b.id DESC
+    </select>
     <select id="findAvailable" resultType="Book">
         SELECT id, isbn, title, author, available, created_at
         FROM books WHERE available = TRUE ORDER BY title

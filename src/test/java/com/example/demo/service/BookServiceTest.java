@@ -40,12 +40,57 @@ class BookServiceTest {
     @Test
     void cannotDeleteBorrowedBook() {
         BookMapper books = TestDoubles.proxy(BookMapper.class, (method, args) ->
-                method.getName().equals("findById") ? new Book("isbn", "书", "作者") : null);
+                method.getName().equals("findByIdForUpdate") ? new Book("isbn", "书", "作者") : null);
         LoanMapper loans = TestDoubles.proxy(LoanMapper.class, (method, args) ->
-                method.getName().equals("countActiveByBookId") ? 1 : null);
+                method.getName().equals("countByBookId") ? 1 : null);
         TestDoubles.SessionState state = state(books, loans);
         assertThrows(BusinessException.class, () -> new BookService(state.factory).delete(9L));
         assertEquals(1, state.rollbacks);
+    }
+
+    @Test
+    void cannotDeleteBookWithReturnedHistory() {
+        Book book = new Book("isbn", "已归还的书", "作者");
+        AtomicBoolean deleted = new AtomicBoolean();
+        BookMapper books = TestDoubles.proxy(BookMapper.class, (method, args) -> switch (method.getName()) {
+            case "findByIdForUpdate" -> book;
+            case "delete" -> { deleted.set(true); yield 1; }
+            default -> null;
+        });
+        LoanMapper loans = TestDoubles.proxy(LoanMapper.class, (method, args) ->
+                method.getName().equals("countByBookId") ? 1 : 0);
+        TestDoubles.SessionState state = state(books, loans);
+        BusinessException error = assertThrows(BusinessException.class, () -> new BookService(state.factory).delete(1L));
+        assertTrue(error.getMessage().contains("借阅历史"));
+        assertFalse(deleted.get());
+        assertEquals(1, state.rollbacks);
+    }
+
+    @Test
+    void deletesBookWithoutHistory() {
+        BookMapper books = TestDoubles.proxy(BookMapper.class, (method, args) -> switch (method.getName()) {
+            case "findByIdForUpdate" -> new Book("isbn", "书", "作者");
+            case "delete" -> 1;
+            default -> null;
+        });
+        TestDoubles.SessionState state = state(books, emptyLoans());
+        new BookService(state.factory).delete(1L);
+        assertEquals(1, state.commits);
+    }
+
+    @Test
+    void databaseDuplicateKeyAfterPrecheckIsAFieldError() {
+        BookMapper books = TestDoubles.proxy(BookMapper.class, (method, args) -> {
+            if (method.getName().equals("insert")) throw new org.apache.ibatis.exceptions.PersistenceException(
+                    new java.sql.SQLException("Duplicate entry", "23000", 1062));
+            return 0;
+        });
+        TestDoubles.SessionState state = state(books, emptyLoans());
+        BusinessException error = assertThrows(BusinessException.class,
+                () -> new BookService(state.factory).create("isbn", "书", "作者"));
+        assertEquals("isbn", error.getField());
+        assertEquals(1, state.rollbacks);
+        assertEquals(0, state.commits);
     }
 
     private TestDoubles.SessionState state(BookMapper books, LoanMapper loans) {

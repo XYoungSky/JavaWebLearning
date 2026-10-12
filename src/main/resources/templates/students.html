@@ -7,12 +7,16 @@
 <main class="page-container">
     <div th:replace="~{fragments :: pageTitle('STUDENT DIRECTORY', '学生名录', '浏览已导入的学生信息；学生数据由初始化脚本统一维护。')}"></div>
     <section class="stat-grid">
-        <article class="stat-card"><span>学生总数</span><strong th:text="${students.size()}">0</strong><small>位登记学生</small></article>
+        <article class="stat-card"><span th:text="${q != null and q != '' ? '匹配学生' : '学生总数'}">学生总数</span><strong th:text="${students.size()}">0</strong><small>位登记学生</small></article>
         <article class="stat-card accent"><span>数据来源</span><strong>MyBatis</strong><small>注解 SQL 查询示例</small></article>
     </section>
     <section class="panel table-panel">
-        <div class="empty-state" th:if="${students.isEmpty()}">暂无学生数据，请执行数据库初始化脚本。</div>
-        <div class="table-scroll" th:unless="${students.isEmpty()}"><table>
+        <form class="filter-form" th:action="${contextPath} + '/students'" method="get" role="search">
+            <label>查找学生<input name="q" th:value="${q}" maxlength="120" placeholder="学号、姓名或班级"></label>
+            <button class="button primary">搜索</button><a class="button ghost" th:href="${contextPath} + '/students'">清空筛选</a>
+        </form>
+        <div class="empty-state" th:if="${students.isEmpty()}"><span th:text="${q != null and q != '' ? '没有匹配的学生，请调整或清空筛选。' : '暂无学生数据，请先导入学生名录。'}"></span></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="学生列表，窄屏可横向滚动" th:unless="${students.isEmpty()}"><table>
             <thead><tr><th>#</th><th>学号</th><th>姓名</th><th>班级</th><th>序列状态</th></tr></thead>
             <tbody><tr th:each="student, stat : ${students}" th:classappend="${stat.even} ? 'even-row'">
                 <td th:text="${stat.count}">1</td><td class="mono" th:text="${student.studentNo}">编号</td>

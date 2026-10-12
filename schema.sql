@@ -1,5 +1,6 @@
--- 在 mybatis-config.xml 当前连接的 study 数据库中执行。
--- 脚本可重复执行；应用本身不会自动创建或修改表结构。
+-- 在本地数据库配置指定的 study 数据库中执行。
+-- 请先创建并选中数据库；本脚本不迁移已有表结构。
+-- 可重复执行，但会更新部分示例数据；已有学习数据时请先检查。
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,

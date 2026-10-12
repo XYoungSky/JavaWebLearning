@@ -8,6 +8,7 @@ public class Book {
     private String title;
     private String author;
     private boolean available;
+    private boolean loanHistory;
     private LocalDateTime createdAt;
 
     public Book() {}
@@ -29,6 +30,8 @@ public class Book {
     public void setAuthor(String author) { this.author = author; }
     public boolean isAvailable() { return available; }
     public void setAvailable(boolean available) { this.available = available; }
+    public boolean isLoanHistory() { return loanHistory; }
+    public void setLoanHistory(boolean loanHistory) { this.loanHistory = loanHistory; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

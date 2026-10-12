@@ -1,6 +1,7 @@
 package com.example.demo.servlet;
 
 import com.example.demo.service.StudentService;
+import com.example.demo.util.Search;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ public class StudentServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        render(request, response, "students", Map.of("students", service.findAll(), "activePage", "students"));
+        String keyword = Search.keyword(request.getParameter("q"));
+        render(request, response, "students", Map.of("students", service.search(keyword), "activePage", "students", "q", keyword));
     }
 }

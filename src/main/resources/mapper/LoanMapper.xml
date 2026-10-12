@@ -20,6 +20,19 @@
         JOIN students s ON s.id = l.student_id
         ORDER BY l.borrowed_at DESC
     </select>
+    <select id="search" resultMap="loanView">
+        SELECT l.id, l.book_id, l.student_id, b.title AS book_title, b.isbn,
+               s.name AS student_name, s.student_no, l.borrowed_at, l.returned_at
+        FROM loans l JOIN books b ON b.id = l.book_id JOIN students s ON s.id = l.student_id
+        <where>
+            <if test="status == 'active'">l.returned_at IS NULL</if>
+            <if test="status == 'returned'">l.returned_at IS NOT NULL</if>
+        </where>
+        ORDER BY l.borrowed_at DESC, l.id DESC
+    </select>
+    <select id="countByBookId" resultType="int">
+        SELECT COUNT(*) FROM loans WHERE book_id = #{bookId}
+    </select>
     <select id="findActiveByBookId" resultType="Loan">
         SELECT id, book_id, student_id, borrowed_at, returned_at
         FROM loans WHERE book_id = #{bookId} AND returned_at IS NULL LIMIT 1

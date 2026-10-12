@@ -45,6 +45,7 @@ class ThymeleafRendererTest {
 
         Loan loan = new Loan();
         loan.setId(1L); loan.setBookId(2L); loan.setStudentId(3L);
+        loan.setBorrowedAt(java.time.LocalDateTime.of(2026, 10, 12, 12, 30));
         loan.setBookTitle("借阅测试书"); loan.setIsbn("ISBN-1");
         loan.setStudentName("借阅学生"); loan.setStudentNo("S02");
         assertContains("loans", merge(base, Map.of(
@@ -60,6 +61,22 @@ class ThymeleafRendererTest {
                 Map.entry("contextInitParam", "app"), Map.entry("forwardedMessage", "forward ok"),
                 Map.entry("redirectArrived", false), Map.entry("classLoaders", List.of("WebappClassLoader"))
         )), "forward ok");
+    }
+
+    @Test
+    void rendersRetainedValuesAndAccessibleFieldError() {
+        StringWriter output = new StringWriter();
+        ThymeleafRenderer.render("books", Map.of(
+                "contextPath", "/library", "activePage", "books", "books", List.of(),
+                "q", "Java", "status", "available", "error", "ISBN 已存在", "errorField", "isbn",
+                "form", Map.of("isbn", "duplicate", "title", "<测试书>", "author", "作者")
+        ), output);
+        String html = output.toString();
+        assertTrue(html.contains("aria-describedby=\"error-isbn\""));
+        assertTrue(html.contains("value=\"&lt;测试书&gt;\""));
+        assertTrue(html.contains("没有匹配的图书"));
+        assertTrue(html.contains("</label>"));
+        assertTrue(html.chars().noneMatch(c -> c < 32 && c != 9 && c != 10 && c != 13));
     }
 
     private void assertContains(String template, Map<String, Object> model, String expected) {

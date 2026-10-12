@@ -159,3 +159,31 @@ summary { color: var(--green); cursor: pointer; font-weight: 700; }
     .login-intro h1 { font-size: 2.5rem; }
     .login-card { padding: 24px; }
 }
+
+/* Search, validation and keyboard feedback share the existing visual language. */
+.filter-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 22px 24px; }
+.filter-form label { flex: 1 1 180px; }
+.filter-form label:first-child { flex-grow: 2; }
+.form-error { grid-column: 1 / -1; margin: 0; }
+.form-error a { display: block; text-decoration: underline; }
+.field-error { display: block; margin-top: 6px; color: var(--red); font-weight: 500; }
+[aria-invalid="true"] { border-color: var(--red); }
+:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+input:focus-visible, select:focus-visible { outline-offset: 1px; }
+.button, .link-button { min-height: 44px; }
+.actions { min-width: 110px; }
+.actions small { max-width: 120px; text-align: left; }
+label, .form-panel > div, .detail-list dd { min-width: 0; }
+select { max-width: 100%; }
+.lab-guide { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 12px; }
+.lab-guide p { margin: 6px 0; font-size: .84rem; }
+@media (max-width: 560px) {
+    .filter-form { padding: 18px 0; }
+    .filter-form label { flex-basis: 100%; }
+    .filter-form .button { flex: 1; }
+    .topbar { position: static; }
+    .query-form { flex-wrap: wrap; }
+    .query-form label { width: 100%; }
+}
+
+.table-scroll table { min-width: 680px; }

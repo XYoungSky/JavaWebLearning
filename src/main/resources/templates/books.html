@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>图书管理</title><link rel="stylesheet" th:href="${contextPath} + '/assets/app.css'">
+    <script defer th:src="${contextPath} + '/assets/app.js'"></script>
 </head>
 <body>
 <div th:replace="~{fragments :: header('图书管理', ${activePage})}"></div>
@@ -10,25 +11,36 @@
     <div th:replace="~{fragments :: pageTitle('BOOK CATALOG', '图书管理', '维护馆藏信息，并实时查看每本书的借阅状态。')}"></div>
     <div th:replace="~{fragments :: flash}"></div>
     <section class="panel form-panel">
-        <div><h2>添加图书</h2><p>ISBN 在系统中必须唯一。</p></div>
-        <form class="inline-form" th:action="${contextPath} + '/books/create'" method="post">
-            <label>ISBN<input name="isbn" required maxlength="32" placeholder="978-7-..." autocomplete="off"></label>
-            <label>书名<input name="title" required maxlength="120" placeholder="书名"></label>
-            <label>作者<input name="author" required maxlength="80" placeholder="作者"></label>
+        <div><h2>添加图书</h2><p>每个 ISBN 对应一本可借图书；有借阅历史的图书会保留。</p></div>
+        <form class="inline-form" th:action="${contextPath} + '/books/create'" method="post" data-submit-once>
+            <input type="hidden" name="q" th:value="${q}"><input type="hidden" name="status" th:value="${status}">
+            <div th:if="${error != null}" class="flash error form-error" role="alert" tabindex="-1" data-error-summary>
+                <strong>图书未添加</strong>：<span th:text="${error}"></span>
+                <a th:if="${errorField != null}" th:href="${'#book-' + errorField}">检查对应字段</a>
+            </div>
+            <label>ISBN<input id="book-isbn" name="isbn" th:value="${form != null ? form.isbn : ''}" th:attr="aria-invalid=${errorField == 'isbn'},aria-describedby=${errorField == 'isbn' ? 'error-isbn' : null}" required maxlength="32" placeholder="978-7-..." autocomplete="off"><small class="field-error" id="error-isbn" th:if="${errorField == 'isbn'}" th:text="${error}"></small></label>
+            <label>书名<input id="book-title" name="title" th:value="${form != null ? form.title : ''}" th:attr="aria-invalid=${errorField == 'title'},aria-describedby=${errorField == 'title' ? 'error-title' : null}" required maxlength="120" placeholder="书名"><small class="field-error" id="error-title" th:if="${errorField == 'title'}" th:text="${error}"></small></label>
+            <label>作者<input id="book-author" name="author" th:value="${form != null ? form.author : ''}" th:attr="aria-invalid=${errorField == 'author'},aria-describedby=${errorField == 'author' ? 'error-author' : null}" required maxlength="80" placeholder="作者"><small class="field-error" id="error-author" th:if="${errorField == 'author'}" th:text="${error}"></small></label>
             <button class="button primary" type="submit">添加图书</button>
         </form>
     </section>
     <section class="panel table-panel">
-        <div class="panel-heading"><h2>全部馆藏</h2><span class="count"><b th:text="${books.size()}">0</b> 本</span></div>
-        <div class="empty-state" th:if="${books.isEmpty()}">暂无图书，请先添加第一本馆藏。</div>
-        <div class="table-scroll" th:unless="${books.isEmpty()}">
-            <table><thead><tr><th>#</th><th>ISBN</th><th>书名</th><th>作者</th><th>状态</th><th></th></tr></thead>
+        <form class="filter-form" th:action="${contextPath} + '/books'" method="get" role="search">
+            <label>查找图书<input name="q" th:value="${q}" maxlength="120" placeholder="书名、作者或 ISBN"></label>
+            <label>借阅状态<select name="status"><option value="">全部状态</option><option value="available" th:selected="${status == 'available'}">可借</option><option value="borrowed" th:selected="${status == 'borrowed'}">借出</option></select></label>
+            <button class="button primary">搜索</button><a class="button ghost" th:href="${contextPath} + '/books'">清空筛选</a>
+        </form>
+        <div class="panel-heading"><h2>馆藏列表</h2><span class="count"><b th:text="${books.size()}">0</b> 本</span></div>
+        <div class="empty-state" th:if="${books.isEmpty()}"><span th:text="${(q != null and q != '') or (status != null and status != '') ? '没有匹配的图书，请调整或清空筛选。' : '暂无图书，请先添加第一本馆藏。'}"></span></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="图书列表，窄屏可横向滚动" th:unless="${books.isEmpty()}">
+            <table><thead><tr><th>#</th><th>ISBN</th><th>书名</th><th>作者</th><th>状态</th><th>操作</th></tr></thead>
             <tbody><tr th:each="book, stat : ${books}">
                 <td th:text="${stat.count}">1</td><td class="mono" th:text="${book.isbn}">ISBN</td>
-                <td><strong th:text="${book.title}">书名</strong><small th:if="${stat.first}">最新录入</small></td>
+                <td><strong th:text="${book.title}">书名</strong></td>
                 <td th:text="${book.author}">作者</td>
                 <td th:switch="${book.available}"><span th:case="true" class="badge available">可借</span><span th:case="*" class="badge borrowed">借出</span></td>
-                <td class="actions"><form th:action="${contextPath} + '/books/delete'" method="post" onsubmit="return confirm('确定删除这本图书吗？')">
+                <td class="actions"><small th:if="${book.loanHistory}">有借阅历史，保留记录</small><form th:unless="${book.loanHistory}" th:action="${contextPath} + '/books/delete'" method="post" data-submit-once onsubmit="return confirm('确定删除这本图书吗？')">
+                    <input type="hidden" name="q" th:value="${q}"><input type="hidden" name="status" th:value="${status}">
                     <input type="hidden" name="id" th:value="${book.id}"><button class="link-button danger" type="submit">删除</button>
                 </form></td>
             </tr></tbody></table>

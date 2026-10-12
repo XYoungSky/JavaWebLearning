@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "JavaWeb: test",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": [
+        "test"
+      ],
+      "group": "test",
+      "problemMatcher": [
+        "$javac"
+      ]
+    },
+    {
+      "label": "JavaWeb: package",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": [
+        "clean",
+        "package"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$javac"
+      ]
+    }
+  ]
+}
